@@ -121,6 +121,10 @@ tr:hover td { background: var(--azul-pale); }
 /* VOLTAR */
 .btn-voltar { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.85); border-radius: 6px; padding: 5px 12px; font-family: var(--font); font-size: .78rem; cursor: pointer; text-decoration: none; transition: all .2s; }
 .btn-voltar:hover { background: rgba(255,255,255,.2); color: #fff; }
+.painel-tabs { display: flex; gap: 4px; }
+.painel-tab { padding: 6px 16px; border-radius: 6px; font-family: var(--font); font-size: .8rem; font-weight: 500; cursor: pointer; border: 1.5px solid rgba(255,255,255,.2); color: rgba(255,255,255,.7); background: transparent; transition: all .2s; }
+.painel-tab:hover { background: rgba(255,255,255,.15); color: #fff; }
+.painel-tab.active { background: #fff; color: var(--azul); font-weight: 600; border-color: #fff; }
 </style>
 </head>
 <body>
@@ -134,13 +138,27 @@ tr:hover td { background: var(--azul-pale); }
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:1rem;">
-    <div class="mes-selector" id="mesSel"></div>
+    <div class="painel-tabs">
+      <button class="painel-tab active" onclick="mudarAba('mensal',this)">📋 Mensal</button>
+      <button class="painel-tab" onclick="mudarAba('evolucao',this)">📈 Evolução Anual</button>
+    </div>
     <a href="index_capa.html" class="btn-voltar">← Portal</a>
   </div>
 </header>
 
 <main>
-  <div id="conteudo"></div>
+  <!-- ABA MENSAL -->
+  <div id="abaMensal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+      <div class="mes-selector" id="mesSel"></div>
+    </div>
+    <div id="conteudo"></div>
+  </div>
+
+  <!-- ABA EVOLUÇÃO -->
+  <div id="abaEvolucao" style="display:none">
+    <div id="conteudoEvolucao"></div>
+  </div>
 </main>
 
 <script>
@@ -370,16 +388,28 @@ function mudarMes(mes) {
   renderPainel(mes);
 }
 
+let abaAtual = 'mensal';
+
+function mudarAba(aba, el) {
+  abaAtual = aba;
+  document.querySelectorAll('.painel-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('abaMensal').style.display   = aba === 'mensal'   ? 'block' : 'none';
+  document.getElementById('abaEvolucao').style.display = aba === 'evolucao' ? 'block' : 'none';
+  if (aba === 'evolucao' && !document.getElementById('conteudoEvolucao').innerHTML.trim()) {
+    renderEvolucao();
+  }
+}
+
 iniciarMeses();
 renderPainel(mesSel);
-renderEvolucao();
 
 // ── EVOLUÇÃO MENSAL ──────────────────────────────────────────
 function renderEvolucao() {
   const mesesComDados = MESES.filter(m => temDados(m));
   if (mesesComDados.length < 2) return;
 
-  const el = document.getElementById('conteudo');
+  const el = document.getElementById('conteudoEvolucao');
 
   // Calcula dados por mês
   const totalAgend   = mesesComDados.map(m => DADOS[m].resumoExames.reduce((s,e) => s+e.agendados, 0));
@@ -478,7 +508,7 @@ function renderEvolucao() {
       </div>
     </div>`;
 
-  el.innerHTML += html;
+  el.innerHTML = html;
 
   const labels = mesesComDados.map(m => m.substring(0,3));
   const lOpts = (yLabel) => ({
