@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dimagem — Dashboard de Ponto</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--azul:#1F3864;--am:#2E75B6;--ac:#BDD7EE;--ap:#EBF3FB;--bg:#F4F7FC;--card:#FFF;--bd:#DDE6F0;--tx:#1a2744;--sf:#5a7099;--vd:#16a34a;--vdbg:#dcfce7;--vm:#dc2626;--vmbg:#fee2e2;--lr:#d97706;--lrbg:#fef3c7;--rx:#7c3aed;--rxbg:#ede9fe;--fn:'DM Sans',sans-serif;--fs:'Libre Baskerville',serif;--fm:'DM Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh;letter-spacing:.01em}
+header{background:var(--azul);color:#fff;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(31,56,100,.2)}
+.hl{display:flex;align-items:center;gap:14px}
+.logo{width:36px;height:36px;background:var(--am);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ht{font-family:var(--fs);font-size:1rem;font-weight:700}
+.hs{font-size:.73rem;opacity:.6}
+.bv{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);border-radius:6px;padding:5px 12px;font-family:var(--fn);font-size:.78rem;cursor:pointer;text-decoration:none;transition:all .2s}
+.bv:hover{background:rgba(255,255,255,.2);color:#fff}
+main{max-width:1300px;margin:0 auto;padding:2rem}
+.nav-tabs{display:flex;border-bottom:2px solid var(--bd);margin-bottom:2rem}
+.nav-tab{padding:10px 20px;font-size:.85rem;font-weight:500;color:var(--sf);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.nav-tab:hover{color:var(--am)}
+.nav-tab.active{color:var(--azul);border-bottom-color:var(--azul);font-weight:600}
+.tabs{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{padding:7px 16px;border-radius:8px;font-size:.82rem;font-weight:500;cursor:pointer;border:1.5px solid var(--bd);background:var(--card);color:var(--sf);transition:all .2s}
+.tab:hover{border-color:var(--am);color:var(--am)}
+.tab.active{background:var(--azul);color:#fff;border-color:var(--azul)}
+.st{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--sf);margin:1.75rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bd)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+.kpi{background:var(--card);border-radius:12px;padding:1.1rem 1.25rem;border:1px solid var(--bd);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(31,56,100,.08)}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:12px 0 0 12px}
+.kpi.a::before{background:var(--am)}.kpi.v::before{background:var(--vd)}.kpi.r::before{background:var(--vm)}.kpi.l::before{background:var(--lr)}.kpi.x::before{background:var(--rx)}
+.kl{font-size:.72rem;color:var(--sf);font-weight:500;margin-bottom:.35rem}
+.kv{font-size:1.8rem;font-weight:700;color:var(--azul);line-height:1;font-family:var(--fm)}
+.ks{font-size:.68rem;color:var(--sf);margin-top:.25rem}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.cg.full{grid-template-columns:1fr}
+@media(max-width:860px){.cg{grid-template-columns:1fr}}
+.cc{background:var(--card);border-radius:12px;border:1px solid var(--bd);padding:1.25rem 1.5rem}
+.ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
+.ct{font-size:.85rem;font-weight:600}
+.cs{font-size:.71rem;color:var(--sf);margin-top:2px}
+.cb{font-size:.7rem;font-weight:600;background:var(--ap);color:var(--am);padding:3px 8px;border-radius:20px;white-space:nowrap}
+.rl{display:flex;flex-direction:column;gap:.4rem}
+.ri{display:flex;align-items:center;gap:.65rem;padding:.4rem .65rem;border-radius:8px;transition:background .15s}
+.ri:hover{background:var(--ap)}
+.rn{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:700;flex-shrink:0;background:var(--ap);color:var(--am)}
+.rn.g{background:#FEF3C7;color:#D97706}.rn.s{background:#F1F5F9;color:#64748B}.rn.b{background:#FEF0E7;color:#C2713A}
+.rname{flex:1;font-size:.79rem;font-weight:500}
+.rdept{font-size:.65rem;color:var(--sf)}
+.rbw{flex:2;display:flex;align-items:center;gap:.45rem}
+.rbb{flex:1;height:5px;background:var(--ap);border-radius:3px;overflow:hidden}
+.rbf{height:100%;border-radius:3px}
+.rv{font-size:.74rem;font-weight:600;font-family:var(--fm);min-width:52px;text-align:right}
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.ec{background:var(--card);border-radius:12px;border:1px solid var(--bd);padding:1rem 1.25rem;transition:box-shadow .2s}
+.ec:hover{box-shadow:0 4px 16px rgba(31,56,100,.08)}
+.ec.af{opacity:.7;border-style:dashed}
+.en{font-size:.83rem;font-weight:600;color:var(--azul)}
+.edp{font-size:.7rem;color:var(--sf);margin-top:1px;margin-bottom:.75rem}
+.eb{display:flex;flex-direction:column;gap:6px}
+.ebr{display:flex;align-items:center;gap:8px}
+.ebl{font-size:.68rem;color:var(--sf);width:52px;flex-shrink:0}
+.ebb{flex:1;height:6px;background:var(--ap);border-radius:3px;overflow:hidden}
+.ebf{height:100%;border-radius:3px;transition:width .6s}
+.ebf.n{background:var(--am)}.ebf.e{background:var(--lr)}.ebf.f{background:var(--vm)}
+.ebv{font-size:.68rem;font-family:var(--fm);min-width:38px;text-align:right}
+.badge{font-size:.65rem;font-weight:600;padding:2px 7px;border-radius:10px;display:inline-block;margin:2px 2px 2px 0}
+.bf{background:var(--rxbg);color:var(--rx)}.ba{background:var(--vmbg);color:var(--vm)}.bo{background:var(--vdbg);color:var(--vd)}.bt{background:var(--lrbg);color:var(--lr)}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem}
+.fc{background:var(--rxbg);border-radius:10px;border:1px solid rgba(124,58,237,.15);padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem}
+.fn2{font-size:.82rem;font-weight:600;color:var(--rx)}
+.fi{font-size:.7rem;color:#6d28d9;margin-top:2px}
+
+/* PONTUALIDADE */
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1rem}
+.pc{background:var(--card);border-radius:12px;border:1px solid var(--bd);padding:1rem 1.25rem;cursor:pointer;transition:all .2s}
+.pc:hover{box-shadow:0 6px 20px rgba(31,56,100,.1);transform:translateY(-1px)}
+.pc.sel{border-color:var(--am);box-shadow:0 0 0 2px rgba(46,117,182,.2)}
+.pc .pn{font-size:.82rem;font-weight:600;color:var(--azul);margin-bottom:2px}
+.pc .pd{font-size:.68rem;color:var(--sf);margin-bottom:.6rem}
+.pm{display:grid;grid-template-columns:1fr 1fr;gap:.35rem}
+.pmet{text-align:center;padding:.35rem;border-radius:6px}
+.pmetv{font-size:.82rem;font-weight:700;font-family:var(--fm)}
+.pmetl{font-size:.6rem;color:var(--sf);margin-top:1px}
+.p-ee{background:#f0fdf4}.p-ee .pmetv{color:#15803d}
+.p-el{background:#fef2f2}.p-el .pmetv{color:#dc2626}
+.p-se{background:#fef3c7}.p-se .pmetv{color:#b45309}
+.p-sl{background:#ede9fe}.p-sl .pmetv{color:#7c3aed}
+.p-n{background:#f8fafc}.p-n .pmetv{color:#64748b}
+.dp{background:var(--card);border-radius:12px;border:1px solid var(--bd);padding:1.5rem;margin-top:1rem;display:none}
+.dp.open{display:block}
+.dph{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.dpt{font-size:1rem;font-weight:600;color:var(--azul)}
+.dpc{background:var(--ap);border:none;color:var(--sf);font-size:1rem;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem}
+.dc{border-radius:8px;padding:.5rem .65rem;border:1px solid var(--bd)}
+.dd{font-size:.68rem;color:var(--sf);font-weight:500;margin-bottom:.3rem}
+.de{display:flex;justify-content:space-between;font-size:.71rem;margin-bottom:1px}
+.del{color:var(--sf)}
+.dev{font-family:var(--fm);font-weight:600}
+.dp-pos{color:var(--vm)}.dp-neg{color:var(--vd)}.dp-zer{color:var(--sf)}
+.dc.ee{background:#f0fdf4}.dc.el{background:#fef2f2}.dc.n{background:#f8fafc}.dc.fer{background:var(--rxbg)}.dc.aus{background:#f8fafc;opacity:.5}
+.info-box{background:var(--lrbg);border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1.5rem;font-size:.82rem;color:#92400e;border:1px solid rgba(217,119,6,.2)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hl">
+    <div class="logo">⏱️</div>
+    <div><div class="ht">Dashboard de Ponto</div><div class="hs">Dimagem · 29/mai a 28/jun/2026 · 23 funcionários</div></div>
+  </div>
+  <a href="index_capa.html" class="bv">← Portal</a>
+</header>
+<main>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="mudarAba('vg',this)">Visão Geral</div>
+    <div class="nav-tab" onclick="mudarAba('pt',this)">Pontualidade</div>
+  </div>
+  <div id="vg">
+    <div id="dTabs" class="tabs"></div>
+    <div id="kpiS"></div><div id="ferS"></div><div id="chS"></div><div id="rkS"></div><div id="emS"></div>
+  </div>
+  <div id="pt" style="display:none"><div id="ptC"></div></div>
+</main>
+<script>
+// ── DADOS GERAIS ──────────────────────────────────────────
+const DADOS={
+  "Recepção":[
+    {nome:"Brenda Nascimento Freitas",    n:132.00,f:0,    e50:14.00,e100:2.15, fer:"22–26/jun",af:false,obs:""},
+    {nome:"Camila Ourique Batista",       n:176.00,f:0,    e50:14.42,e100:2.60, fer:null,      af:false,obs:""},
+    {nome:"Carmen Angela Fetter",         n:127.93,f:35.20,e50:8.38, e100:0,    fer:null,      af:false,obs:"Atestado 11–12/jun"},
+    {nome:"Caroline Ferraz Lazzarotto",   n:176.00,f:0,    e50:14.37,e100:2.77, fer:null,      af:false,obs:""},
+    {nome:"Cristiele Korte Ribas",        n:174.67,f:1.33, e50:12.73,e100:0,    fer:null,      af:false,obs:""},
+    {nome:"Julia de Lima Villanova",      n:0,     f:184.8,e50:0,    e100:0,    fer:null,      af:true, obs:"Afastada"},
+    {nome:"Juliane Souza dos Santos",     n:176.00,f:0,    e50:19.57,e100:0,    fer:null,      af:false,obs:""},
+    {nome:"Leila Ceratti Moreno",         n:0,     f:184.8,e50:0,    e100:0,    fer:null,      af:true, obs:"Afastada"},
+    {nome:"Liliam Queli Antunes da Cruz", n:176.00,f:0,    e50:15.55,e100:2.07, fer:null,      af:false,obs:""},
+    {nome:"Mariane Cristina Maturana",    n:175.32,f:0.68, e50:12.25,e100:0,    fer:null,      af:false,obs:""},
+    {nome:"Marli Martins Mattos",         n:172.45,f:3.55, e50:1.27, e100:0,    fer:null,      af:false,obs:""},
+    {nome:"Miriam Raquel Gamste Haugg",   n:167.20,f:8.80, e50:13.82,e100:0,    fer:null,      af:false,obs:""},
+    {nome:"Natieli Brum Meggiolaro",      n:0,     f:184.8,e50:0,    e100:0,    fer:null,      af:true, obs:"Afastada"},
+  ],
+  "Radiologia":[
+    {nome:"Cassio Maturana",              n:95.12, f:0.88, e50:38.00,e100:24.78,fer:null,      af:false,obs:""},
+    {nome:"Cecilia Albarello Schmalz",    n:71.82, f:0.18, e50:0.18, e100:0,    fer:"15–19/jun",af:false,obs:""},
+    {nome:"Elisangela Pfeiffer Tabille",  n:96.00, f:0,    e50:7.30, e100:2.48, fer:null,      af:false,obs:""},
+    {nome:"Simone De Andrade Ourique",    n:72.00, f:0,    e50:25.52,e100:12.85,fer:"22–26/jun",af:false,obs:""},
+    {nome:"Sonia Martins de Melo",        n:95.73, f:0.27, e50:3.05, e100:0,    fer:null,      af:false,obs:""},
+  ],
+  "Enfermagem":[
+    {nome:"Carla Giovana Freitas da Silva",n:136.00,f:4.00,e50:0,    e100:18.73,fer:null,      af:false,obs:""},
+    {nome:"Celso Ademir Kessler Da Rosa", n:175.15,f:0.85, e50:7.15, e100:0,    fer:null,      af:false,obs:""},
+    {nome:"Flavia Fabbrin Farias",        n:0,     f:126.0,e50:0,    e100:0,    fer:null,      af:true, obs:"Afastada"},
+    {nome:"Michele Fonseca De Freitas",   n:0,     f:184.8,e50:0,    e100:0,    fer:null,      af:true, obs:"Afastada"},
+  ],
+  "Serviços Gerais":[
+    {nome:"Roseni Jahn",                  n:120.00,f:0,    e50:15.43,e100:0,    fer:null,      af:false,obs:""},
+  ]
+};
+
+// ── DADOS PONTUALIDADE ────────────────────────────────────
+// sch: horário contratado em minutos (e1=entrada, s2=saída)
+// dias: array {dt, e1, s2, obs}
+function tm(h,m){return h*60+m}
+function parse(s){if(!s)return null;const p=s.split(':');return +p[0]*60+ +p[1]}
+function fmtDev(v){if(v===null)return'—';const a=Math.abs(Math.round(v)),h=Math.floor(a/60),m=a%60,s=(h>0?h+'h':'')+m+'m';return(v<0?'-':'+')+s}
+function fmtT(v){if(v===null)return'—';return String(Math.floor(v/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0')}
+
+const PONT={
+  // ── RECEPÇÃO (07:30–17:48) ────────────────────────────
+  "Brenda Nascimento Freitas":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:20",s2:"18:05"},{dt:"01/jun",e1:"07:01",s2:"17:59"},{dt:"02/jun",e1:"07:20",s2:"18:00"},
+    {dt:"03/jun",e1:"07:04",s2:"17:41"},{dt:"05/jun",e1:"07:10",s2:"18:02"},{dt:"08/jun",e1:"06:55",s2:"18:00"},
+    {dt:"09/jun",e1:"07:05",s2:"17:57"},{dt:"10/jun",e1:"07:13",s2:"17:59"},{dt:"11/jun",e1:"07:12",s2:"18:28"},
+    {dt:"12/jun",e1:"07:10",s2:"18:01"},{dt:"15/jun",e1:"07:04",s2:"18:01"},{dt:"16/jun",e1:"07:19",s2:"18:01"},
+    {dt:"17/jun",e1:"07:16",s2:"17:40"},{dt:"18/jun",e1:"07:14",s2:"18:11"},{dt:"19/jun",e1:"07:16",s2:"17:56"},
+    {dt:"22/jun",obs:"Férias"},{dt:"23/jun",obs:"Férias"},{dt:"24/jun",obs:"Férias"},{dt:"25/jun",obs:"Férias"},{dt:"26/jun",obs:"Férias"},
+  ]},
+  "Camila Ourique Batista":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:06",s2:"18:02"},{dt:"01/jun",e1:"07:18",s2:"18:01"},{dt:"02/jun",e1:"07:12",s2:"18:01"},
+    {dt:"03/jun",e1:"07:28",s2:"18:00"},{dt:"05/jun",e1:"07:09",s2:"18:02"},{dt:"08/jun",e1:"07:33",s2:"17:59"},
+    {dt:"09/jun",e1:"07:14",s2:"18:01"},{dt:"10/jun",e1:"07:22",s2:"18:02"},{dt:"11/jun",e1:"07:21",s2:"17:58"},
+    {dt:"12/jun",e1:"07:09",s2:"17:59"},{dt:"15/jun",e1:"07:22",s2:"18:01"},{dt:"16/jun",e1:"07:13",s2:"17:59"},
+    {dt:"17/jun",e1:"07:20",s2:"18:02"},{dt:"18/jun",e1:"07:23",s2:"17:40"},{dt:"19/jun",e1:"06:59",s2:"18:02"},
+    {dt:"22/jun",e1:"07:26",s2:"18:02"},{dt:"23/jun",e1:"07:30",s2:"17:59"},{dt:"24/jun",e1:"07:27",s2:"18:02"},
+    {dt:"25/jun",e1:"07:00",s2:"17:41"},{dt:"26/jun",e1:"07:05",s2:"17:59"},
+  ]},
+  "Carmen Angela Fetter":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:32",s2:"18:03"},{dt:"01/jun",e1:"07:18",s2:"17:58"},{dt:"02/jun",e1:"07:26",s2:"18:05"},
+    {dt:"03/jun",e1:"07:15",s2:"17:55"},{dt:"05/jun",e1:"07:36",s2:"18:00"},{dt:"09/jun",e1:"07:19",s2:"17:45"},
+    {dt:"10/jun",e1:"07:25",s2:"18:03"},{dt:"11/jun",e1:"07:16",s2:null,obs:"Atestado parcial"},
+    {dt:"12/jun",obs:"Atestado"},{dt:"15/jun",e1:"07:09",s2:"17:58"},{dt:"16/jun",e1:"07:15",s2:"17:59"},
+    {dt:"17/jun",e1:"07:18",s2:"18:03"},{dt:"19/jun",e1:"07:16",s2:"18:03"},
+    {dt:"22/jun",e1:"07:16",s2:"18:02"},{dt:"23/jun",e1:"07:10",s2:"17:57"},
+    {dt:"25/jun",e1:"07:18",s2:"17:58"},{dt:"26/jun",e1:"07:19",s2:null},
+  ]},
+  "Caroline Ferraz Lazzarotto":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:27",s2:"18:03"},{dt:"01/jun",e1:"07:20",s2:"18:26"},{dt:"02/jun",e1:"07:03",s2:"17:48"},
+    {dt:"03/jun",e1:"07:33",s2:"18:40"},{dt:"05/jun",e1:"07:19",s2:"17:49"},{dt:"08/jun",e1:"07:27",s2:"18:15"},
+    {dt:"09/jun",e1:"07:02",s2:"17:46"},{dt:"10/jun",e1:"07:27",s2:"18:00"},{dt:"11/jun",e1:"07:20",s2:"17:56"},
+    {dt:"12/jun",e1:"07:26",s2:"18:00"},{dt:"15/jun",e1:"07:36",s2:"17:40"},{dt:"16/jun",e1:"06:59",s2:"19:08"},
+    {dt:"17/jun",e1:"07:26",s2:"18:00"},{dt:"18/jun",e1:"07:19",s2:"18:02"},{dt:"19/jun",e1:"07:26",s2:"17:58"},
+    {dt:"22/jun",e1:"07:26",s2:"18:24"},{dt:"23/jun",e1:"06:55",s2:"17:57"},{dt:"24/jun",e1:"07:24",s2:"18:04"},
+    {dt:"25/jun",e1:"07:25",s2:"18:02"},{dt:"26/jun",e1:"07:29",s2:"18:00"},
+  ]},
+  "Cristiele Korte Ribas":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:19",s2:"18:04"},{dt:"01/jun",e1:"07:14",s2:"17:50"},{dt:"02/jun",e1:"07:16",s2:"17:59"},
+    {dt:"03/jun",e1:"07:13",s2:"17:56"},{dt:"05/jun",e1:"07:14",s2:"17:30"},{dt:"08/jun",e1:"07:16",s2:"17:58"},
+    {dt:"09/jun",e1:"07:14",s2:"17:58"},{dt:"10/jun",e1:"07:15",s2:"17:59"},{dt:"11/jun",e1:"07:16",s2:"17:58"},
+    {dt:"12/jun",e1:"07:11",s2:"17:58"},{dt:"15/jun",e1:"07:13",s2:"17:42"},{dt:"16/jun",e1:"07:16",s2:"18:01"},
+    {dt:"17/jun",e1:"09:16",s2:"18:03",obs:"Atraso"},{dt:"18/jun",e1:"07:12",s2:"18:00"},
+    {dt:"19/jun",e1:"07:15",s2:"18:00"},{dt:"22/jun",e1:"07:17",s2:"17:59"},{dt:"23/jun",e1:"07:10",s2:"18:00"},
+    {dt:"24/jun",e1:"07:13",s2:"17:58"},{dt:"25/jun",e1:"07:13",s2:"18:01"},{dt:"26/jun",e1:"07:15",s2:"17:59"},
+  ]},
+  "Juliane Souza dos Santos":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:17",s2:"19:00"},{dt:"01/jun",e1:"07:12",s2:"17:39"},{dt:"02/jun",e1:"07:21",s2:"18:38"},
+    {dt:"03/jun",e1:"06:50",s2:"17:58"},{dt:"05/jun",e1:"07:13",s2:"18:57"},{dt:"08/jun",e1:"07:09",s2:"17:39"},
+    {dt:"09/jun",e1:"07:17",s2:"18:26"},{dt:"10/jun",e1:"06:56",s2:"17:58"},{dt:"11/jun",e1:"07:21",s2:"17:57"},
+    {dt:"12/jun",e1:"07:22",s2:"18:17"},{dt:"15/jun",e1:"07:17",s2:"18:00"},{dt:"16/jun",e1:"07:24",s2:"17:40"},
+    {dt:"17/jun",e1:"06:55",s2:"18:01"},{dt:"18/jun",e1:"07:12",s2:"17:58"},{dt:"19/jun",e1:"07:13",s2:"18:44"},
+    {dt:"22/jun",e1:"07:09",s2:"17:43"},{dt:"23/jun",e1:"07:18",s2:"18:07"},{dt:"24/jun",e1:"06:58",s2:"17:59"},
+    {dt:"25/jun",e1:"07:20",s2:"17:58"},{dt:"26/jun",e1:"07:18",s2:"18:55"},
+  ]},
+  "Liliam Queli Antunes da Cruz":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:21",s2:"18:05"},{dt:"01/jun",e1:"07:25",s2:"18:00"},{dt:"02/jun",e1:"07:11",s2:"18:14"},
+    {dt:"03/jun",e1:"07:16",s2:"17:52"},{dt:"05/jun",e1:"07:28",s2:"17:09"},{dt:"08/jun",e1:"07:25",s2:"17:54"},
+    {dt:"09/jun",e1:"07:22",s2:"18:07"},{dt:"10/jun",e1:"07:22",s2:"18:10"},{dt:"11/jun",e1:"07:01",s2:"18:13"},
+    {dt:"12/jun",e1:"07:32",s2:"18:07"},{dt:"15/jun",e1:"07:22",s2:"18:02"},{dt:"16/jun",e1:"07:26",s2:"17:42"},
+    {dt:"17/jun",e1:"07:22",s2:"18:07"},{dt:"18/jun",e1:"07:01",s2:"18:04"},{dt:"19/jun",e1:"07:28",s2:"18:20"},
+    {dt:"22/jun",e1:"07:01",s2:"18:00"},{dt:"23/jun",e1:"07:29",s2:"18:09"},{dt:"24/jun",e1:"07:22",s2:"18:05"},
+    {dt:"25/jun",e1:"07:05",s2:"18:05"},{dt:"26/jun",e1:"07:24",s2:"17:36"},
+  ]},
+  "Mariane Cristina Maturana":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:20",s2:"18:03"},{dt:"01/jun",e1:"07:07",s2:"18:00"},{dt:"02/jun",e1:"07:14",s2:"18:02"},
+    {dt:"03/jun",e1:"07:11",s2:"18:00"},{dt:"05/jun",e1:"07:14",s2:"18:08"},{dt:"08/jun",e1:"07:17",s2:"18:02"},
+    {dt:"09/jun",e1:"07:14",s2:"18:01"},{dt:"10/jun",e1:"07:15",s2:"17:59"},{dt:"11/jun",e1:"07:07",s2:"17:44"},
+    {dt:"12/jun",e1:"07:21",s2:"16:50",obs:"Saída antecipada"},{dt:"15/jun",e1:"07:09",s2:"18:02"},
+    {dt:"16/jun",e1:"07:27",s2:"18:05"},{dt:"17/jun",e1:"07:15",s2:"18:02"},{dt:"18/jun",e1:"07:15",s2:"18:03"},
+    {dt:"19/jun",e1:"07:13",s2:"18:02"},{dt:"22/jun",e1:"07:14",s2:"18:03"},{dt:"23/jun",e1:"07:10",s2:"17:59"},
+    {dt:"24/jun",e1:"07:10",s2:"17:59"},{dt:"25/jun",e1:"07:12",s2:"18:00"},{dt:"26/jun",e1:"07:15",s2:"18:00"},
+  ]},
+  "Marli Martins Mattos":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:53",s2:"17:22"},{dt:"01/jun",e1:"07:57",s2:"17:21"},{dt:"02/jun",e1:"07:50",s2:"17:18"},
+    {dt:"03/jun",e1:"07:56",s2:"17:13"},{dt:"05/jun",e1:"07:55",s2:"17:14"},{dt:"08/jun",e1:"08:01",s2:"17:22"},
+    {dt:"09/jun",e1:"07:50",s2:"17:22"},{dt:"10/jun",e1:"07:46",s2:"17:18"},{dt:"11/jun",e1:"07:37",s2:"17:39"},
+    {dt:"12/jun",e1:"07:56",s2:"17:19"},{dt:"15/jun",e1:"08:06",s2:"17:14"},{dt:"16/jun",e1:"07:52",s2:"17:17"},
+    {dt:"17/jun",e1:"07:52",s2:"17:31"},{dt:"18/jun",e1:"07:16",s2:"17:41"},{dt:"19/jun",e1:"07:59",s2:"17:23"},
+    {dt:"22/jun",e1:"07:54",s2:"17:43"},{dt:"23/jun",e1:"08:03",s2:"17:47"},{dt:"24/jun",e1:"08:02",s2:"17:20"},
+    {dt:"25/jun",e1:"08:09",s2:"17:45"},{dt:"26/jun",e1:"08:17",s2:"17:16"},
+  ]},
+  "Miriam Raquel Gamste Haugg":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Recepção",dias:[
+    {dt:"29/mai",e1:"07:13",s2:"17:50"},{dt:"01/jun",e1:"07:12",s2:"17:57"},{dt:"02/jun",e1:"07:10",s2:"18:05"},
+    {dt:"03/jun",e1:"07:11",s2:"17:55"},{dt:"05/jun",obs:"Falta"},{dt:"08/jun",e1:"07:22",s2:"18:01"},
+    {dt:"09/jun",e1:"07:19",s2:"18:17"},{dt:"10/jun",e1:"07:19",s2:"17:15"},{dt:"11/jun",e1:"07:16",s2:"17:51"},
+    {dt:"12/jun",e1:"07:15",s2:"18:20"},{dt:"15/jun",e1:"07:05",s2:"17:59"},{dt:"16/jun",e1:"07:16",s2:"17:42"},
+    {dt:"17/jun",e1:"07:20",s2:"18:00"},{dt:"18/jun",e1:"07:11",s2:"17:47"},{dt:"19/jun",e1:"07:16",s2:"18:05"},
+    {dt:"22/jun",e1:"07:21",s2:"17:52"},{dt:"23/jun",e1:"07:27",s2:"17:58"},{dt:"24/jun",e1:"07:17",s2:"18:07"},
+    {dt:"25/jun",e1:"07:21",s2:"17:45"},{dt:"26/jun",e1:"07:20",s2:"18:24"},
+  ]},
+  // ── RADIOLOGIA ────────────────────────────────────────
+  // Cassio: contrato 13:30–18:18, mas trabalha manhã também (extra)
+  "Cassio Maturana":{sch:{e1:tm(13,30),s2:tm(18,18)},dept:"Radiologia",dias:[
+    {dt:"29/mai",e1:"07:05",s2:"11:00",obs:"Período manhã extra"},{dt:"01/jun",e1:"07:05",s2:"16:15"},
+    {dt:"02/jun",e1:"07:06",s2:"16:00"},{dt:"03/jun",e1:"07:09",s2:"15:57"},{dt:"05/jun",e1:"07:03",s2:"16:04"},
+    {dt:"08/jun",e1:"07:04",s2:"16:18"},{dt:"09/jun",e1:"07:03",s2:"16:00"},{dt:"10/jun",e1:"07:03",s2:"16:08"},
+    {dt:"11/jun",e1:"07:04",s2:"16:10"},{dt:"12/jun",e1:"07:05",s2:"16:11"},{dt:"15/jun",e1:"07:04",s2:"16:11"},
+    {dt:"16/jun",e1:"07:05",s2:"16:10"},{dt:"17/jun",e1:"07:06",s2:"16:11"},{dt:"18/jun",e1:"07:06",s2:"16:09"},
+    {dt:"19/jun",e1:"07:04",s2:"16:16"},{dt:"22/jun",e1:"07:06",s2:"16:08"},{dt:"23/jun",e1:"07:05",s2:"16:03"},
+    {dt:"24/jun",e1:"07:05",s2:"16:21"},{dt:"25/jun",e1:"07:06",s2:"16:14"},{dt:"26/jun",e1:"07:03",s2:"16:03"},
+  ]},
+  "Cecilia Albarello Schmalz":{sch:{e1:tm(7,30),s2:tm(12,18)},dept:"Radiologia",dias:[
+    {dt:"29/mai",e1:"07:05",s2:"11:57"},{dt:"01/jun",e1:"07:08",s2:"11:56"},{dt:"02/jun",e1:"07:06",s2:"12:05"},
+    {dt:"03/jun",e1:"07:09",s2:"11:57"},{dt:"05/jun",e1:"07:06",s2:"11:56"},{dt:"08/jun",e1:"07:09",s2:"11:57"},
+    {dt:"09/jun",e1:"07:05",s2:"11:58"},{dt:"10/jun",e1:"07:05",s2:"11:57"},{dt:"11/jun",e1:"07:06",s2:"11:57"},
+    {dt:"12/jun",e1:"07:07",s2:"11:47"},
+    {dt:"15/jun",obs:"Férias"},{dt:"16/jun",obs:"Férias"},{dt:"17/jun",obs:"Férias"},{dt:"18/jun",obs:"Férias"},{dt:"19/jun",obs:"Férias"},
+    {dt:"22/jun",e1:"07:07",s2:"11:48"},{dt:"23/jun",e1:"07:03",s2:"11:57"},{dt:"24/jun",e1:"07:06",s2:"11:58"},
+    {dt:"25/jun",e1:"07:15",s2:"11:52"},{dt:"26/jun",e1:"07:07",s2:"11:57"},
+  ]},
+  "Elisangela Pfeiffer Tabille":{sch:{e1:tm(7,30),s2:tm(12,18)},dept:"Radiologia",dias:[
+    {dt:"29/mai",e1:"07:05",s2:"17:24"},{dt:"01/jun",e1:"07:01",s2:"11:58"},{dt:"02/jun",e1:"07:06",s2:"12:05"},
+    {dt:"03/jun",e1:"07:05",s2:"11:54"},{dt:"05/jun",e1:"07:03",s2:"11:56"},{dt:"08/jun",e1:"07:03",s2:"12:01"},
+    {dt:"09/jun",e1:"07:02",s2:"12:00"},{dt:"10/jun",e1:"07:02",s2:"12:02"},{dt:"11/jun",e1:"07:02",s2:"11:54"},
+    {dt:"12/jun",e1:"07:05",s2:"12:00"},{dt:"15/jun",e1:"07:03",s2:"11:53"},{dt:"16/jun",e1:"07:09",s2:"11:59"},
+    {dt:"17/jun",e1:"07:07",s2:"11:51"},{dt:"18/jun",e1:"07:05",s2:"11:59"},{dt:"19/jun",e1:"07:06",s2:"12:07"},
+    {dt:"22/jun",e1:"07:05",s2:"12:05"},{dt:"23/jun",e1:"07:06",s2:"12:04"},{dt:"24/jun",e1:"07:08",s2:"11:58"},
+    {dt:"25/jun",e1:"07:05",s2:"11:56"},{dt:"26/jun",e1:"07:07",s2:"11:51"},
+  ]},
+  "Simone De Andrade Ourique":{sch:{e1:tm(7,30),s2:tm(12,18)},dept:"Radiologia",dias:[
+    {dt:"29/mai",e1:"07:41",s2:"17:44"},{dt:"01/jun",e1:null,s2:"17:53",obs:"Sem batida entrada"},
+    {dt:"02/jun",e1:"07:41",s2:"17:52"},{dt:"03/jun",e1:"09:56",s2:"17:30",obs:"Entrada tardia"},
+    {dt:"05/jun",e1:"07:38",s2:"17:03"},{dt:"08/jun",e1:"07:41",s2:"17:09"},
+    {dt:"09/jun",e1:"07:50",s2:"17:58"},{dt:"10/jun",e1:null,s2:"18:05",obs:"Sem batida entrada"},
+    {dt:"11/jun",e1:"07:33",s2:"17:54"},{dt:"12/jun",e1:"07:39",s2:"17:22"},
+    {dt:"15/jun",e1:"07:35",s2:"17:42"},{dt:"16/jun",e1:"07:46",s2:"17:12"},
+    {dt:"17/jun",e1:"07:40",s2:"17:25"},{dt:"18/jun",e1:"07:37",s2:"16:40"},
+    {dt:"19/jun",e1:"07:58",s2:"17:17"},
+    {dt:"22/jun",obs:"Férias"},{dt:"23/jun",obs:"Férias"},{dt:"24/jun",obs:"Férias"},{dt:"25/jun",obs:"Férias"},{dt:"26/jun",obs:"Férias"},
+  ]},
+  "Sonia Martins de Melo":{sch:{e1:tm(7,30),s2:tm(12,18)},dept:"Radiologia",dias:[
+    {dt:"29/mai",e1:"07:25",s2:"12:02"},{dt:"01/jun",e1:"07:13",s2:"12:03"},{dt:"02/jun",e1:"07:13",s2:"12:14"},
+    {dt:"03/jun",e1:"07:08",s2:"12:32"},{dt:"05/jun",e1:"07:13",s2:"12:46"},{dt:"08/jun",e1:"07:13",s2:"12:05"},
+    {dt:"09/jun",e1:"07:15",s2:"12:01"},{dt:"10/jun",e1:"07:12",s2:"12:08"},{dt:"11/jun",e1:"07:15",s2:"12:18"},
+    {dt:"12/jun",e1:"07:19",s2:"12:04"},{dt:"15/jun",e1:"07:11",s2:"12:08"},{dt:"16/jun",e1:"07:19",s2:"12:17"},
+    {dt:"17/jun",e1:"07:15",s2:"12:02"},{dt:"18/jun",e1:"07:13",s2:"12:17"},{dt:"19/jun",e1:"07:14",s2:"12:05"},
+    {dt:"22/jun",e1:"07:15",s2:"12:15"},{dt:"23/jun",e1:"07:13",s2:"12:13"},{dt:"24/jun",e1:"07:15",s2:"12:05"},
+    {dt:"25/jun",e1:"07:19",s2:"12:01"},{dt:"26/jun",e1:"07:13",s2:"12:11"},
+  ]},
+  // ── ENFERMAGEM ────────────────────────────────────────
+  "Carla Giovana Freitas da Silva":{sch:{e1:tm(7,15),s2:tm(15,30)},dept:"Enfermagem",dias:[
+    {dt:"29/mai",e1:"07:25",s2:"16:40"},{dt:"01/jun",e1:"07:33",s2:"16:11"},{dt:"02/jun",e1:"07:20",s2:"16:19"},
+    {dt:"03/jun",e1:"07:26",s2:"16:21"},{dt:"05/jun",e1:"07:09",s2:"16:05"},{dt:"08/jun",e1:"07:02",s2:"16:17"},
+    {dt:"09/jun",e1:"07:14",s2:"16:28"},{dt:"10/jun",e1:"07:12",s2:"16:59"},{dt:"11/jun",e1:"07:06",s2:"15:39"},
+    {dt:"12/jun",e1:"07:24",s2:"15:35"},{dt:"15/jun",e1:"07:15",s2:"17:26"},{dt:"16/jun",e1:"07:04",s2:"15:38"},
+    {dt:"17/jun",e1:"07:18",s2:"15:41"},{dt:"18/jun",e1:"07:12",s2:"15:50"},{dt:"19/jun",e1:"07:03",s2:"16:56"},
+    {dt:"22/jun",e1:"07:26",s2:"16:12"},{dt:"23/jun",e1:"07:24",s2:"17:30"},{dt:"24/jun",e1:"07:08",s2:"16:35"},
+    {dt:"25/jun",e1:"07:05",s2:"15:56"},{dt:"26/jun",e1:"07:17",s2:"15:48"},
+  ]},
+  "Celso Ademir Kessler Da Rosa":{sch:{e1:tm(7,30),s2:tm(17,48)},dept:"Enfermagem",dias:[
+    {dt:"29/mai",e1:"07:57",s2:"19:02"},{dt:"01/jun",e1:"07:54",s2:"18:25"},{dt:"02/jun",e1:"07:55",s2:"18:38"},
+    {dt:"03/jun",e1:"07:55",s2:"18:40"},{dt:"05/jun",e1:"08:01",s2:"18:57"},{dt:"08/jun",e1:"08:00",s2:"18:15"},
+    {dt:"09/jun",e1:"07:58",s2:"18:26"},{dt:"10/jun",e1:"07:54",s2:"18:17"},{dt:"11/jun",e1:"07:56",s2:"18:27"},
+    {dt:"12/jun",e1:"07:56",s2:"17:54"},{dt:"15/jun",e1:"07:54",s2:"18:00"},{dt:"16/jun",e1:"07:53",s2:"19:03"},
+    {dt:"17/jun",e1:"07:59",s2:"18:44"},{dt:"18/jun",e1:"07:56",s2:"18:04"},{dt:"19/jun",e1:"07:58",s2:"18:45"},
+    {dt:"22/jun",e1:"07:54",s2:"18:25"},{dt:"23/jun",e1:"07:52",s2:"18:06"},{dt:"24/jun",e1:"07:58",s2:"18:00"},
+    {dt:"25/jun",e1:"07:45",s2:"17:59"},{dt:"26/jun",e1:"07:59",s2:"18:54"},
+  ]},
+  // ── SERVIÇOS GERAIS ───────────────────────────────────
+  "Roseni Jahn":{sch:{e1:tm(13,0),s2:tm(19,0)},dept:"Serviços Gerais",dias:[
+    {dt:"29/mai",e1:"11:02",s2:"18:11"},{dt:"01/jun",e1:"11:02",s2:"18:10"},{dt:"02/jun",e1:"10:59",s2:"18:15"},
+    {dt:"03/jun",e1:"10:54",s2:"18:04"},{dt:"05/jun",e1:"10:57",s2:"18:10"},{dt:"08/jun",e1:"10:57",s2:"18:15"},
+    {dt:"09/jun",e1:"10:57",s2:"18:18"},{dt:"10/jun",e1:"10:57",s2:"18:17"},{dt:"11/jun",e1:"10:54",s2:"18:13"},
+    {dt:"12/jun",e1:"11:01",s2:"18:20"},{dt:"15/jun",e1:"10:57",s2:"18:03"},{dt:"16/jun",e1:"10:54",s2:"18:14"},
+    {dt:"17/jun",e1:"11:04",s2:"18:15"},{dt:"18/jun",e1:"11:01",s2:"18:11"},{dt:"19/jun",e1:"10:58",s2:"18:16"},
+    {dt:"22/jun",e1:"10:56",s2:"18:14"},{dt:"23/jun",e1:"10:54",s2:"18:11"},{dt:"24/jun",e1:"11:10",s2:"18:07"},
+    {dt:"25/jun",e1:"10:56",s2:"18:05"},{dt:"26/jun",e1:"10:56",s2:"18:19"},
+  ]},
+};
+
+// ── HELPERS ───────────────────────────────────────────────
+function abrev(n){const p=n.trim().split(' ');return p.length<=2?n:p[0]+' '+p[p.length-1]}
+function fmtH(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60);return`${hh}h${mm>0?mm+'m':''}`}
+let dA='todos',abaA='vg',charts={};
+
+function mudarAba(id,el){
+  abaA=id;
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('vg').style.display=id==='vg'?'block':'none';
+  document.getElementById('pt').style.display=id==='pt'?'block':'none';
+  if(id==='pt') renderPont();
+}
+function filtrar(d,el){dA=d;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');destroyC();renderG()}
+function getAll(d){if(d==='todos')return Object.entries(DADOS).flatMap(([k,v])=>v.map(f=>({...f,dept:k})));return(DADOS[d]||[]).map(f=>({...f,dept:d}))}
+function destroyC(){Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}});charts={}}
+
+function calcPont(nome){
+  const dp=PONT[nome];if(!dp)return null;
+  let ne=0,se=0,ns=0,ss=0;
+  dp.dias.filter(d=>d.e1&&!d.obs?.includes('Férias')&&!d.obs?.includes('Falta')).forEach(d=>{
+    const e=parse(d.e1),s=parse(d.s2);
+    if(e!==null){ne+=e-dp.sch.e1;se++}
+    if(s!==null){ns+=s-dp.sch.s2;ss++}
+  });
+  return{ae:se>0?ne/se:null,as:ss>0?ns/ss:null,n:se,dept:dp.dept,dias:dp.dias,sch:dp.sch}
+}
+
+// ── VISÃO GERAL ───────────────────────────────────────────
+function renderG(){
+  const fs=getAll(dA);
+  renderKPI(fs);renderFer(fs);renderCh(fs);renderRk(fs);renderEm(fs);
+}
+function renderKPI(fs){
+  const at=fs.filter(f=>!f.af);
+  const tN=at.reduce((s,f)=>s+f.n,0),tF=fs.reduce((s,f)=>s+f.f,0),tE=at.reduce((s,f)=>s+f.e50+f.e100,0);
+  document.getElementById('kpiS').innerHTML=`<p class="st">Resumo · 29/mai a 28/jun/2026</p><div class="kpi-grid">
+    <div class="kpi a"><div class="kl">Horas Normais</div><div class="kv">${fmtH(tN)}</div><div class="ks">${at.length} ativos</div></div>
+    <div class="kpi r"><div class="kl">Total Faltas</div><div class="kv">${fmtH(tF)}</div><div class="ks">${fs.filter(f=>f.f>0).length} com faltas</div></div>
+    <div class="kpi l"><div class="kl">Horas Extras</div><div class="kv">${fmtH(tE)}</div><div class="ks">EX50% + EX100%</div></div>
+    <div class="kpi x"><div class="kl">Em Férias</div><div class="kv">${fs.filter(f=>f.fer).length}</div><div class="ks">no período</div></div>
+    <div class="kpi v"><div class="kl">Afastados</div><div class="kv">${fs.filter(f=>f.af).length}</div><div class="ks">funcionários</div></div>
+  </div>`;
+}
+function renderFer(fs){
+  const cf=fs.filter(f=>f.fer);
+  document.getElementById('ferS').innerHTML=cf.length?`<p class="st">Férias no Período</p><div class="fg">${cf.map(f=>`<div class="fc"><div style="font-size:1.5rem">🏖️</div><div><div class="fn2">${abrev(f.nome)}</div><div class="fi">${f.dept} · ${f.fer}</div></div></div>`).join('')}</div>`:'';
+}
+function renderCh(fs){
+  const at=fs.filter(f=>!f.af);
+  document.getElementById('chS').innerHTML=`<p class="st">Horas Trabalhadas × Faltas × Extras</p><div class="cg full"><div class="cc">
+    <div class="ch"><div><div class="ct">Horas Normais × Extras × Faltas</div><div class="cs">Funcionários ativos</div></div><span class="cb">${at.length} ativos</span></div>
+    <div style="position:relative;height:${Math.max(220,at.length*28)}px"><canvas id="cH"></canvas></div>
+  </div></div>`;
+  setTimeout(()=>{charts.h=new Chart(document.getElementById('cH'),{type:'bar',data:{
+    labels:at.map(f=>abrev(f.nome)),
+    datasets:[{label:'Normais',data:at.map(f=>+f.n.toFixed(1)),backgroundColor:'#2E75B6CC',borderRadius:3},
+              {label:'Extras',data:at.map(f=>+(f.e50+f.e100).toFixed(1)),backgroundColor:'#d97706CC',borderRadius:3},
+              {label:'Faltas',data:at.map(f=>+f.f.toFixed(1)),backgroundColor:'#dc2626CC',borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'DM Sans',size:11},padding:12}}},
+      scales:{x:{grid:{color:'#EBF3FB'},ticks:{font:{family:'DM Mono',size:10}}},y:{grid:{display:false},ticks:{font:{family:'DM Sans',size:11}}}}}});
+  },50);
+}
+function renderRk(fs){
+  const ce=fs.filter(f=>!f.af&&(f.e50+f.e100)>0).map(f=>({...f,tot:f.e50+f.e100})).sort((a,b)=>b.tot-a.tot);
+  const mx=ce[0]?.tot||1;
+  document.getElementById('rkS').innerHTML=`<p class="st">Ranking — Horas Extras</p><div class="cg">
+    <div class="cc"><div class="ch"><div><div class="ct">Ranking Horas Extras</div></div><span class="cb">${ce.length} func.</span></div>
+      <div class="rl">${ce.map((f,i)=>`<div class="ri"><div class="rn ${i===0?'g':i===1?'s':i===2?'b':''}">${i+1}</div><div style="flex:1"><div class="rname">${abrev(f.nome)}</div><div class="rdept">${f.dept}</div></div><div class="rbw"><div class="rbb"><div class="rbf" style="width:${Math.round(f.tot/mx*100)}%;background:var(--lr)"></div></div><div class="rv" style="color:var(--lr)">${fmtH(f.tot)}</div></div></div>`).join('')}</div>
+    </div>
+    <div class="cc"><div class="ch"><div><div class="ct">EX50% vs EX100%</div></div></div>
+      <div style="position:relative;height:280px"><canvas id="cE"></canvas></div>
+    </div>
+  </div>`;
+  setTimeout(()=>{const t8=ce.slice(0,8);charts.e=new Chart(document.getElementById('cE'),{type:'bar',data:{
+    labels:t8.map(f=>abrev(f.nome)),
+    datasets:[{label:'EX50%',data:t8.map(f=>+f.e50.toFixed(1)),backgroundColor:'#d97706CC',borderRadius:3},{label:'EX100%',data:t8.map(f=>+f.e100.toFixed(1)),backgroundColor:'#dc2626CC',borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'DM Sans',size:11}}}},
+      scales:{x:{stacked:true,grid:{color:'#EBF3FB'},ticks:{font:{family:'DM Mono',size:10}}},y:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:10}}}}}});
+  },50);
+}
+function renderEm(fs){
+  const mx=Math.max(...fs.map(f=>f.n),1),mf=Math.max(...fs.map(f=>f.f),1),me=Math.max(...fs.map(f=>f.e50+f.e100),1);
+  document.getElementById('emS').innerHTML=`<p class="st">Cartões por Funcionário</p><div class="eg">${fs.map(f=>{
+    const ex=f.e50+f.e100;
+    const bgs=[];
+    if(f.fer) bgs.push(`<span class="badge bf">🏖️ ${f.fer}</span>`);
+    if(f.af)  bgs.push(`<span class="badge ba">⚠️ Afastado(a)</span>`);
+    if(f.obs&&!f.af) bgs.push(`<span class="badge bt">📋 ${f.obs}</span>`);
+    if(!f.af&&f.f===0&&!f.obs) bgs.push(`<span class="badge bo">✓ Sem faltas</span>`);
+    return`<div class="ec ${f.af?'af':''}">
+      <div class="en">${abrev(f.nome)}</div>
+      <div class="edp">${f.dept}${bgs.length?' · ':''}<span>${bgs.join('')}</span></div>
+      <div class="eb">
+        <div class="ebr"><div class="ebl">Normais</div><div class="ebb"><div class="ebf n" style="width:${Math.round(f.n/mx*100)}%"></div></div><div class="ebv">${fmtH(f.n)}</div></div>
+        <div class="ebr"><div class="ebl">Extras</div><div class="ebb"><div class="ebf e" style="width:${Math.round(ex/me*100)}%"></div></div><div class="ebv">${fmtH(ex)}</div></div>
+        <div class="ebr"><div class="ebl">Faltas</div><div class="ebb"><div class="ebf f" style="width:${Math.round(f.f/mf*100)}%"></div></div><div class="ebv">${fmtH(f.f)}</div></div>
+      </div></div>`;
+  }).join('')}</div>`;
+}
+
+// ── PONTUALIDADE ──────────────────────────────────────────
+function renderPont(){
+  const nomes=Object.keys(PONT);
+  const mets=nomes.map(n=>({nome:n,...calcPont(n)})).filter(x=>x.n>0);
+  const maxAe=Math.max(...mets.map(m=>Math.abs(m.ae||0)),1);
+  const maxAs=Math.max(...mets.map(m=>Math.abs(m.as||0)),1);
+
+  // Agrupa por dept
+  const depts=[...new Set(mets.map(m=>m.dept))];
+
+  document.getElementById('ptC').innerHTML=`
+    <p class="st">Análise de Pontualidade — todos os departamentos · Jun/2026</p>
+    <div class="info-box">💡 <strong>Como ler:</strong> Entrada negativa = antecipada (gera horas extras). Entrada positiva = atraso. Saída negativa = saída antecipada. Saída positiva = permanência além do horário.</div>
+    <div class="cg">
+      <div class="cc">
+        <div class="ch"><div><div class="ct">Desvio Médio — Entrada</div><div class="cs">Negativo = antecipada · Positivo = atraso</div></div></div>
+        <div style="position:relative;height:${Math.max(200,mets.length*28)}px"><canvas id="cEnt"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="ch"><div><div class="ct">Desvio Médio — Saída</div><div class="cs">Negativo = saída antes · Positivo = além do horário</div></div></div>
+        <div style="position:relative;height:${Math.max(200,mets.length*28)}px"><canvas id="cSai"></canvas></div>
+      </div>
+    </div>
+    <p class="st">Detalhe Individual — clique para ver dia a dia</p>
+    ${depts.map(d=>`
+      <p style="font-size:.75rem;font-weight:600;color:var(--am);margin:.75rem 0 .5rem;text-transform:uppercase;letter-spacing:.08em">${d}</p>
+      <div class="pg">${mets.filter(m=>m.dept===d).map(m=>{
+        const ae=m.ae,as=m.as;
+        const ecls=ae!==null&&ae<-3?'p-ee':ae!==null&&ae>3?'p-el':'p-n';
+        const scls=as!==null&&as>3?'p-sl':as!==null&&as<-3?'p-se':'p-n';
+        return`<div class="pc" onclick="abrirDet('${m.nome}')" id="pc_${m.nome.replace(/\s/g,'_').replace(/\./g,'')}">
+          <div class="pn">${abrev(m.nome)}</div>
+          <div class="pd">${m.n} dias · Horário: ${fmtT(PONT[m.nome].sch.e1)}–${fmtT(PONT[m.nome].sch.s2)}</div>
+          <div class="pm">
+            <div class="pmet ${ecls}"><div class="pmetv">${ae!==null?fmtDev(ae):'—'}</div><div class="pmetl">entrada</div></div>
+            <div class="pmet ${scls}"><div class="pmetv">${as!==null?fmtDev(as):'—'}</div><div class="pmetl">saída</div></div>
+          </div>
+        </div>`;
+      }).join('')}</div>
+    `).join('')}
+    <div class="dp" id="dPanel">
+      <div class="dph"><div class="dpt" id="dTitle"></div><button class="dpc" onclick="fecharDet()">✕</button></div>
+      <div id="dBody"></div>
+    </div>`;
+
+  setTimeout(()=>{
+    const labels=mets.map(m=>abrev(m.nome));
+    const ed=mets.map(m=>m.ae!==null?+m.ae.toFixed(1):0);
+    const sd=mets.map(m=>m.as!==null?+m.as.toFixed(1):0);
+    charts.ent=new Chart(document.getElementById('cEnt'),{type:'bar',data:{labels,datasets:[{label:'min',data:ed,backgroundColor:ed.map(v=>v<0?'#16a34a99':'#dc262699'),borderRadius:3}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#EBF3FB'},ticks:{font:{family:'DM Mono',size:10}}},y:{grid:{display:false},ticks:{font:{family:'DM Sans',size:10}}}}}});
+    charts.sai=new Chart(document.getElementById('cSai'),{type:'bar',data:{labels,datasets:[{label:'min',data:sd,backgroundColor:sd.map(v=>v>0?'#7c3aed99':'#d9770699'),borderRadius:3}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#EBF3FB'},ticks:{font:{family:'DM Mono',size:10}}},y:{grid:{display:false},ticks:{font:{family:'DM Sans',size:10}}}}}});
+  },50);
+}
+
+function abrirDet(nome){
+  const dp=PONT[nome];if(!dp)return;
+  document.querySelectorAll('.pc').forEach(c=>c.classList.remove('sel'));
+  const card=document.getElementById('pc_'+nome.replace(/\s/g,'_').replace(/\./g,''));
+  if(card){card.classList.add('sel');card.scrollIntoView({behavior:'smooth',block:'nearest'})}
+  document.getElementById('dTitle').textContent=nome+' — Horário: '+fmtT(dp.sch.e1)+' – '+fmtT(dp.sch.s2);
+  const html=dp.dias.map(d=>{
+    if(d.obs==='Férias') return`<div class="dc fer"><div class="dd">${d.dt}</div><div style="font-size:.7rem;color:var(--rx)">🏖️ Férias</div></div>`;
+    if(d.obs==='Falta')  return`<div class="dc aus"><div class="dd">${d.dt}</div><div style="font-size:.7rem;color:var(--vm)">⚠️ Falta</div></div>`;
+    if(!d.e1)            return`<div class="dc aus"><div class="dd">${d.dt}</div><div style="font-size:.7rem;color:var(--sf)">${d.obs||'—'}</div></div>`;
+    const e=parse(d.e1),s=parse(d.s2);
+    const de=e!==null?e-dp.sch.e1:null,ds=s!==null?s-dp.sch.s2:null;
+    const cls=de!==null&&de>5?'el':de!==null&&de<-5?'ee':'n';
+    return`<div class="dc ${cls}">
+      <div class="dd">${d.dt}${d.obs?` <small style="color:var(--vm)">(${d.obs})</small>`:''}</div>
+      <div class="de"><span class="del">Entrada</span><span class="dev ${de!==null&&de>5?'dp-pos':de!==null&&de<-5?'dp-neg':'dp-zer'}">${d.e1} <small>(${de!==null?fmtDev(de):'—'})</small></span></div>
+      <div class="de"><span class="del">Saída</span><span class="dev ${ds!==null&&ds>5?'dp-pos':ds!==null&&ds<-5?'dp-neg':'dp-zer'}">${d.s2||'—'} <small>(${ds!==null?fmtDev(ds):'—'})</small></span></div>
+    </div>`;
+  }).join('');
+  document.getElementById('dBody').innerHTML=`<div class="dg">${html}</div>`;
+  document.getElementById('dPanel').classList.add('open');
+  document.getElementById('dPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function fecharDet(){document.getElementById('dPanel').classList.remove('open');document.querySelectorAll('.pc').forEach(c=>c.classList.remove('sel'))}
+
+// INIT
+const depts=['todos','Recepção','Radiologia','Enfermagem','Serviços Gerais'];
+document.getElementById('dTabs').innerHTML=depts.map((d,i)=>`<div class="tab ${i===0?'active':''}" onclick="filtrar('${d}',this)">${d==='todos'?'Todos':d}</div>`).join('');
+renderG();
+</script>
+</body>
+</html>
