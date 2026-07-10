@@ -335,44 +335,65 @@ function renderEvolucao(){
 
   const CORES_CONV = ["#2E75B6","#16a34a","#d97706","#dc2626","#7c3aed"];
 
+  const bOpts = (yTxt) => ({
+    ...lOpts(yTxt),
+    scales:{
+      x:{ grid:{display:false}, ticks:{font:{family:"DM Sans",size:12}} },
+      y:{ grid:{color:"#EBF3FB"}, ticks:{font:{family:"DM Mono",size:10}},
+          title:{ display:!!yTxt, text:yTxt||"", font:{family:"DM Sans",size:10} } }
+    }
+  });
+
+  const bOptsStacked = () => ({
+    ...lOpts(),
+    scales:{
+      x:{ stacked:true, grid:{display:false}, ticks:{font:{family:"DM Sans",size:12}} },
+      y:{ stacked:true, grid:{color:"#EBF3FB"}, ticks:{font:{family:"DM Mono",size:10}} }
+    }
+  });
+
   // 1. Agendamentos × Realizados
-  new Chart(document.getElementById("evAgend"),{type:"line",data:{labels,datasets:[
-    {label:"Agendados", data:totalAgend, borderColor:"#2E75B6",backgroundColor:"#2E75B620",tension:.3,fill:true,pointRadius:6,pointBackgroundColor:"#2E75B6"},
-    {label:"Realizados",data:totalRealiz,borderColor:"#16a34a",backgroundColor:"#16a34a15",tension:.3,fill:true,pointRadius:6,pointBackgroundColor:"#16a34a"}
-  ]},options:lOpts()});
+  new Chart(document.getElementById("evAgend"),{type:"bar",data:{labels,datasets:[
+    {label:"Agendados", data:totalAgend, backgroundColor:"#2E75B6CC", borderRadius:5},
+    {label:"Realizados",data:totalRealiz,backgroundColor:"#16a34aCC", borderRadius:5}
+  ]},options:bOpts()});
 
   // 2. Taxa de realização
-  new Chart(document.getElementById("evTaxa"),{type:"line",data:{labels,datasets:[
-    {label:"Taxa de Realização (%)",data:taxa,borderColor:"#d97706",backgroundColor:"#d9770615",tension:.3,fill:true,pointRadius:7,pointBackgroundColor:taxa.map(t=>t>=100?"#16a34a":"#d97706")}
-  ]},options:{...lOpts("%"),plugins:{...lOpts("%").plugins}}});
+  new Chart(document.getElementById("evTaxa"),{type:"bar",data:{labels,datasets:[
+    {label:"Taxa (%)",data:taxa,
+     backgroundColor:taxa.map(t=>t>=100?"#16a34aCC":t>=80?"#2E75B6CC":"#d97706CC"),
+     borderRadius:5}
+  ]},options:{...bOpts("%"),plugins:{legend:{display:false}}}});
 
-  // 3. Procedimentos por secretária
-  new Chart(document.getElementById("evSec"),{type:"line",data:{labels,datasets:
+  // 3. Procedimentos por secretária (barras agrupadas)
+  new Chart(document.getElementById("evSec"),{type:"bar",data:{labels,datasets:
     todasSecs.map((s,i)=>({
-      label:abrev(s), tension:.3, pointRadius:5,
-      borderColor:CORES_SEC[i%CORES_SEC.length],
-      backgroundColor:"transparent",
+      label:abrev(s),
+      backgroundColor:CORES_SEC[i%CORES_SEC.length]+"CC",
+      borderRadius:3,
       data:meses.map(m=>{ const p=(DADOS[m].procedimentos||[]).find(p=>p.secretaria===s); return p?p.quantidade:0; })
     }))
-  },options:lOpts()});
+  },options:bOpts()});
 
-  // 4. Por tipo de exame
-  new Chart(document.getElementById("evExame"),{type:"line",data:{labels,datasets:
+  // 4. Por tipo de exame (barras empilhadas)
+  new Chart(document.getElementById("evExame"),{type:"bar",data:{labels,datasets:
     exames.map((ex,i)=>({
-      label:ex, tension:.3, pointRadius:5,
-      borderColor:CORES_EX[i], backgroundColor:"transparent",
+      label:ex,
+      backgroundColor:CORES_EX[i]+"CC",
+      borderRadius:2,
       data:meses.map(m=>{ const e=(DADOS[m].resumoExames||[]).find(e=>e.exame===ex); return e?e.realizados:0; })
     }))
-  },options:lOpts()});
+  },options:bOptsStacked()});
 
-  // 5. Top 5 convênios
-  new Chart(document.getElementById("evConv"),{type:"line",data:{labels,datasets:
+  // 5. Top 5 convênios (barras agrupadas)
+  new Chart(document.getElementById("evConv"),{type:"bar",data:{labels,datasets:
     top5.map((conv,i)=>({
-      label:conv.length>25?conv.substring(0,23)+"…":conv, tension:.3, pointRadius:5,
-      borderColor:CORES_CONV[i], backgroundColor:"transparent",
+      label:conv.length>25?conv.substring(0,23)+"…":conv,
+      backgroundColor:CORES_CONV[i]+"CC",
+      borderRadius:3,
       data:meses.map(m=>{ const e=(DADOS[m].entradaDiaria||[]).find(e=>e.convenio===conv); return e?e.agendados:0; })
     }))
-  },options:lOpts()});
+  },options:bOpts()});
 }
 
 // INIT
