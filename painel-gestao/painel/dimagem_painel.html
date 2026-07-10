@@ -372,6 +372,225 @@ function mudarMes(mes) {
 
 iniciarMeses();
 renderPainel(mesSel);
+renderEvolucao();
+
+// ── EVOLUÇÃO MENSAL ──────────────────────────────────────────
+function renderEvolucao() {
+  const mesesComDados = MESES.filter(m => temDados(m));
+  if (mesesComDados.length < 2) return;
+
+  const el = document.getElementById('conteudo');
+
+  // Calcula dados por mês
+  const totalAgend   = mesesComDados.map(m => DADOS[m].resumoExames.reduce((s,e) => s+e.agendados, 0));
+  const totalRealiz  = mesesComDados.map(m => DADOS[m].resumoExames.reduce((s,e) => s+e.realizados, 0));
+  const taxaRealiz   = mesesComDados.map((m,i) => totalAgend[i] > 0 ? +(totalRealiz[i]/totalAgend[i]*100).toFixed(1) : 0);
+
+  const exames = ['Densitometria','Ecografia','Mamografia','Raio X','Ressonância','Tomografia'];
+  const coresEx = ['#2E75B6','#4EAEE0','#1F3864','#7CB9E8','#B0D4F1','#5E9BD1'];
+
+  // Secretárias ativas em todos os meses
+  const todasSecs = [...new Set(mesesComDados.flatMap(m => DADOS[m].procedimentos.filter(p=>p.quantidade>0).map(p=>p.secretaria)))];
+  const coresSec = ['#2E75B6','#16a34a','#d97706','#dc2626','#7c3aed','#0891b2','#db2777','#65a30d','#ea580c'];
+
+  // Top 5 convênios (por total)
+  const convTotais = {};
+  mesesComDados.forEach(m => {
+    (DADOS[m].entradaDiaria||[]).forEach(e => {
+      convTotais[e.convenio] = (convTotais[e.convenio]||0) + e.agendados;
+    });
+  });
+  const top5Conv = Object.entries(convTotais).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]);
+  const coresConv = ['#2E75B6','#16a34a','#d97706','#dc2626','#7c3aed'];
+
+  // HTML da seção
+  const html = `
+    <div style="margin-top:2.5rem">
+      <p class="section-title" style="font-size:.8rem;font-weight:700;color:#1F3864;border-bottom:2px solid #2E75B6;padding-bottom:.6rem;letter-spacing:.08em">
+        📈 EVOLUÇÃO MENSAL — ${mesesComDados[0]} a ${mesesComDados[mesesComDados.length-1]}
+      </p>
+
+      <!-- Agendamentos × Realizados -->
+      <p class="section-title">Agendamentos × Realizados por Mês</p>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Evolução — Linha</div><div class="chart-sub">Tendência mensal</div></div></div>
+          <div class="chart-wrap" style="height:240px"><canvas id="evLineAgend"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Comparativo — Barras</div><div class="chart-sub">Por mês</div></div></div>
+          <div class="chart-wrap" style="height:240px"><canvas id="evBarAgend"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Taxa de Realização -->
+      <p class="section-title">Taxa de Realização Mensal (%)</p>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Taxa — Linha</div><div class="chart-sub">Realizados ÷ Agendados</div></div></div>
+          <div class="chart-wrap" style="height:220px"><canvas id="evLineTaxa"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Taxa — Barras</div><div class="chart-sub">Meta visual</div></div></div>
+          <div class="chart-wrap" style="height:220px"><canvas id="evBarTaxa"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Procedimentos por secretária -->
+      <p class="section-title">Procedimentos por Secretária — Evolução</p>
+      <div class="charts-grid full">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Procedimentos por Secretária — Linha</div></div></div>
+          <div class="chart-wrap" style="height:280px"><canvas id="evLineSec"></canvas></div>
+        </div>
+      </div>
+      <div class="charts-grid full">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Procedimentos por Secretária — Barras</div></div></div>
+          <div class="chart-wrap" style="height:280px"><canvas id="evBarSec"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Por tipo de exame -->
+      <p class="section-title">Realizados por Tipo de Exame — Evolução</p>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Por Exame — Linha</div></div></div>
+          <div class="chart-wrap" style="height:260px"><canvas id="evLineEx"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Por Exame — Barras</div></div></div>
+          <div class="chart-wrap" style="height:260px"><canvas id="evBarEx"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Top convênios -->
+      <p class="section-title">Top 5 Convênios — Evolução de Agendamentos</p>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Convênios — Linha</div></div></div>
+          <div class="chart-wrap" style="height:260px"><canvas id="evLineConv"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Convênios — Barras</div></div></div>
+          <div class="chart-wrap" style="height:260px"><canvas id="evBarConv"></canvas></div>
+        </div>
+      </div>
+    </div>`;
+
+  el.innerHTML += html;
+
+  const labels = mesesComDados.map(m => m.substring(0,3));
+  const lOpts = (yLabel) => ({
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:10}}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:11}}},
+      y:{grid:{color:'#EBF3FB'},ticks:{font:{family:'DM Mono',size:10}},
+         title:{display:!!yLabel,text:yLabel||'',font:{family:'DM Sans',size:10}}}
+    }
+  });
+
+  // 1. Agendamentos × Realizados — Linha
+  new Chart(document.getElementById('evLineAgend'), {type:'line', data:{labels,
+    datasets:[
+      {label:'Agendados', data:totalAgend, borderColor:'#2E75B6', backgroundColor:'#2E75B620', tension:.3, fill:true, pointRadius:5},
+      {label:'Realizados',data:totalRealiz,borderColor:'#16a34a', backgroundColor:'#16a34a15', tension:.3, fill:true, pointRadius:5}
+    ]}, options:lOpts()});
+
+  // 2. Agendamentos × Realizados — Barras
+  new Chart(document.getElementById('evBarAgend'), {type:'bar', data:{labels,
+    datasets:[
+      {label:'Agendados', data:totalAgend, backgroundColor:'#2E75B6CC', borderRadius:4},
+      {label:'Realizados',data:totalRealiz,backgroundColor:'#16a34aCC', borderRadius:4}
+    ]}, options:lOpts()});
+
+  // 3. Taxa — Linha
+  new Chart(document.getElementById('evLineTaxa'), {type:'line', data:{labels,
+    datasets:[{label:'Taxa de Realização (%)', data:taxaRealiz,
+      borderColor:'#d97706', backgroundColor:'#d9770615', tension:.3, fill:true,
+      pointRadius:6, pointBackgroundColor:'#d97706'}]},
+    options:{...lOpts('%'),
+      plugins:{...lOpts('%').plugins, annotation:{annotations:{meta:{type:'line',yMin:100,yMax:100,borderColor:'#dc2626',borderWidth:1,borderDash:[4,4]}}}}}});
+
+  // 4. Taxa — Barras
+  new Chart(document.getElementById('evBarTaxa'), {type:'bar', data:{labels,
+    datasets:[{label:'Taxa (%)', data:taxaRealiz,
+      backgroundColor: taxaRealiz.map(t => t >= 100 ? '#16a34aCC' : t >= 80 ? '#2E75B6CC' : '#d97706CC'),
+      borderRadius:4}]},
+    options:{...lOpts('%'),plugins:{legend:{display:false}}}});
+
+  // 5. Procedimentos por Secretária — Linha
+  const secDatasets = todasSecs.map((s,i) => ({
+    label: s.split(' ')[0],
+    data: mesesComDados.map(m => {
+      const p = DADOS[m].procedimentos.find(p => p.secretaria === s);
+      return p ? p.quantidade : 0;
+    }),
+    borderColor: coresSec[i % coresSec.length],
+    backgroundColor: 'transparent',
+    tension:.3, pointRadius:5
+  }));
+  new Chart(document.getElementById('evLineSec'), {type:'line', data:{labels, datasets:secDatasets}, options:lOpts()});
+
+  // 6. Procedimentos por Secretária — Barras empilhadas
+  new Chart(document.getElementById('evBarSec'), {type:'bar', data:{labels,
+    datasets: todasSecs.map((s,i) => ({
+      label: s.split(' ')[0],
+      data: mesesComDados.map(m => {
+        const p = DADOS[m].procedimentos.find(p => p.secretaria === s);
+        return p ? p.quantidade : 0;
+      }),
+      backgroundColor: coresSec[i % coresSec.length] + 'CC',
+      borderRadius:2
+    }))},
+    options:{...lOpts(), scales:{x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:11}}},y:{stacked:true,grid:{color:'#EBF3FB'},ticks:{font:{family:'DM Mono',size:10}}}}}});
+
+  // 7. Por tipo de exame — Linha
+  new Chart(document.getElementById('evLineEx'), {type:'line', data:{labels,
+    datasets: exames.map((ex,i) => ({
+      label:ex,
+      data: mesesComDados.map(m => {
+        const e = DADOS[m].resumoExames.find(e => e.exame === ex);
+        return e ? e.realizados : 0;
+      }),
+      borderColor:coresEx[i], backgroundColor:'transparent', tension:.3, pointRadius:4
+    }))}, options:lOpts()});
+
+  // 8. Por tipo de exame — Barras
+  new Chart(document.getElementById('evBarEx'), {type:'bar', data:{labels,
+    datasets: exames.map((ex,i) => ({
+      label:ex,
+      data: mesesComDados.map(m => {
+        const e = DADOS[m].resumoExames.find(e => e.exame === ex);
+        return e ? e.realizados : 0;
+      }),
+      backgroundColor:coresEx[i]+'CC', borderRadius:2
+    }))},
+    options:{...lOpts(), scales:{x:{stacked:true,grid:{display:false},ticks:{font:{family:'DM Sans',size:11}}},y:{stacked:true,grid:{color:'#EBF3FB'},ticks:{font:{family:'DM Mono',size:10}}}}}});
+
+  // 9. Top 5 Convênios — Linha
+  new Chart(document.getElementById('evLineConv'), {type:'line', data:{labels,
+    datasets: top5Conv.map((conv,i) => ({
+      label: conv.length > 20 ? conv.substring(0,18)+'…' : conv,
+      data: mesesComDados.map(m => {
+        const e = (DADOS[m].entradaDiaria||[]).find(e => e.convenio === conv);
+        return e ? e.agendados : 0;
+      }),
+      borderColor:coresConv[i], backgroundColor:'transparent', tension:.3, pointRadius:4
+    }))}, options:lOpts()});
+
+  // 10. Top 5 Convênios — Barras
+  new Chart(document.getElementById('evBarConv'), {type:'bar', data:{labels,
+    datasets: top5Conv.map((conv,i) => ({
+      label: conv.length > 20 ? conv.substring(0,18)+'…' : conv,
+      data: mesesComDados.map(m => {
+        const e = (DADOS[m].entradaDiaria||[]).find(e => e.convenio === conv);
+        return e ? e.agendados : 0;
+      }),
+      backgroundColor:coresConv[i]+'CC', borderRadius:3
+    }))}, options:lOpts()});
+}
 </script>
 </body>
 </html>
