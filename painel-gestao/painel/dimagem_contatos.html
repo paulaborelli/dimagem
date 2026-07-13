@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dimagem — Dashboard de Contatos</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--azul:#1F3864;--am:#2E75B6;--ap:#EBF3FB;--bg:#F4F7FC;--card:#FFF;--bd:#DDE6F0;--tx:#1a2744;--sf:#5a7099;--vd:#16a34a;--vdbg:#dcfce7;--vm:#dc2626;--vmbg:#fee2e2;--lr:#d97706;--lrbg:#fef3c7;--rx:#7c3aed;--rxbg:#ede9fe;--fn:'DM Sans',sans-serif;--fs:'Libre Baskerville',serif;--fm:'DM Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh}
+header{background:var(--azul);color:#fff;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(31,56,100,.2)}
+.hl{display:flex;align-items:center;gap:14px}
+.logo{width:36px;height:36px;background:var(--am);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ht{font-family:var(--fs);font-size:1rem;font-weight:700}
+.hs{font-size:.73rem;opacity:.6}
+.demo-badge{background:#d97706;color:#fff;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em}
+.bv{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);border-radius:6px;padding:5px 12px;font-family:var(--fn);font-size:.78rem;cursor:pointer;text-decoration:none;transition:all .2s}
+.bv:hover{background:rgba(255,255,255,.2);color:#fff}
+main{max-width:1300px;margin:0 auto;padding:2rem}
+.demo-aviso{background:var(--lrbg);border:1px solid rgba(217,119,6,.3);border-radius:10px;padding:.85rem 1.25rem;margin-bottom:1.5rem;font-size:.82rem;color:#92400e;display:flex;align-items:center;gap:.75rem}
+.st{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--sf);margin:1.75rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bd)}
+/* KPIs */
+.kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+.kpi{background:var(--card);border-radius:12px;padding:1.1rem 1.25rem;border:1px solid var(--bd);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(31,56,100,.08)}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:12px 0 0 12px}
+.kpi.a::before{background:var(--am)}.kpi.v::before{background:var(--vd)}.kpi.r::before{background:var(--vm)}.kpi.l::before{background:var(--lr)}.kpi.x::before{background:var(--rx)}
+.kl{font-size:.72rem;color:var(--sf);font-weight:500;margin-bottom:.35rem}
+.kv{font-size:1.8rem;font-weight:700;color:var(--azul);line-height:1;font-family:var(--fm)}
+.ks{font-size:.68rem;color:var(--sf);margin-top:.25rem}
+/* GRID */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.cg.full{grid-template-columns:1fr}
+.cg.wide{grid-template-columns:2fr 1fr}
+@media(max-width:860px){.cg,.cg.wide{grid-template-columns:1fr}}
+.cc{background:var(--card);border-radius:12px;border:1px solid var(--bd);padding:1.25rem 1.5rem}
+.ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
+.ct{font-size:.85rem;font-weight:600}
+.cs{font-size:.71rem;color:var(--sf);margin-top:2px}
+.cb{font-size:.7rem;font-weight:600;background:var(--ap);color:var(--am);padding:3px 8px;border-radius:20px}
+/* RANKING */
+.rl{display:flex;flex-direction:column;gap:.4rem}
+.ri{display:flex;align-items:center;gap:.65rem;padding:.4rem .65rem;border-radius:8px;transition:background .15s;cursor:default}
+.ri:hover{background:var(--ap)}
+.rn{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;background:var(--ap);color:var(--am)}
+.rn.g{background:#FEF3C7;color:#D97706}.rn.s{background:#F1F5F9;color:#64748B}.rn.b{background:#FEF0E7;color:#C2713A}
+.rname{flex:1;font-size:.8rem;font-weight:500}
+.rsub{font-size:.68rem;color:var(--sf)}
+.rbw{flex:2;display:flex;align-items:center;gap:.5rem}
+.rbb{flex:1;height:5px;background:var(--ap);border-radius:3px;overflow:hidden}
+.rbf{height:100%;border-radius:3px}
+.rv{font-size:.74rem;font-weight:600;font-family:var(--fm);min-width:30px;text-align:right}
+/* TABELA */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.79rem}
+th{background:var(--ap);color:var(--azul);font-weight:600;padding:.55rem 1rem;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
+td{padding:.5rem 1rem;border-bottom:1px solid var(--bd)}
+tr:hover td{background:var(--ap)}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block}
+.b-pos{background:var(--vdbg);color:var(--vd)}
+.b-neg{background:var(--vmbg);color:var(--vm)}
+.b-and{background:var(--lrbg);color:var(--lr)}
+.b-neu{background:#f1f5f9;color:#64748b}
+.b-ag{background:var(--ap);color:var(--am)}
+.b-re{background:var(--vdbg);color:var(--vd)}
+.b-ca{background:var(--vmbg);color:var(--vm)}
+.b-rm{background:var(--lrbg);color:var(--lr)}
+.b-aw{background:var(--rxbg);color:var(--rx)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hl">
+    <div class="logo">🤝</div>
+    <div><div class="ht">Dashboard de Contatos</div><div class="hs">Dimagem · Prospecção e Encaminhamentos · 2026</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:.75rem">
+    <span class="demo-badge">⚠️ DADOS DE EXEMPLO</span>
+    <a href="index_capa.html" class="bv">← Portal</a>
+  </div>
+</header>
+
+<main>
+  <div class="demo-aviso">
+    ⚠️ <strong>Dashboard em modo demonstração.</strong> Os dados exibidos são fictícios e servem apenas para aprovação da estrutura. Serão substituídos pelos dados reais assim que disponíveis.
+  </div>
+
+  <!-- KPIs -->
+  <p class="st">Resumo Geral</p>
+  <div class="kg">
+    <div class="kpi a"><div class="kl">Total de Contatos</div><div class="kv">38</div><div class="ks">médicos, prefeituras e outros</div></div>
+    <div class="kpi v"><div class="kl">Positivos</div><div class="kv">14</div><div class="ks">vão encaminhar</div></div>
+    <div class="kpi l"><div class="kl">Em andamento</div><div class="kv">11</div><div class="ks">aguardando retorno</div></div>
+    <div class="kpi r"><div class="kl">Negativos</div><div class="kv">6</div><div class="ks">sem interesse</div></div>
+    <div class="kpi x"><div class="kl">Encaminhamentos</div><div class="kv">47</div><div class="ks">exames gerados</div></div>
+    <div class="kpi v"><div class="kl">Taxa de Conversão</div><div class="kv">37%</div><div class="ks">contatos → encaminhadores</div></div>
+  </div>
+
+  <!-- INTERAÇÕES E RETORNO -->
+  <p class="st">Interações e Retorno</p>
+  <div class="cg">
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Retorno por Tipo de Contato</div><div class="cs">Distribuição dos resultados</div></div></div>
+      <div style="position:relative;height:240px"><canvas id="cRetorno"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Tipo de Contato Realizado</div><div class="cs">Como os contatos foram feitos</div></div></div>
+      <div style="position:relative;height:240px"><canvas id="cTipo"></canvas></div>
+    </div>
+  </div>
+
+  <div class="cg">
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Interações por Mês</div><div class="cs">Evolução da prospecção</div></div></div>
+      <div style="position:relative;height:220px"><canvas id="cMes"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Contatos por Tipo</div><div class="cs">Médicos, prefeituras e outros</div></div></div>
+      <div style="position:relative;height:220px"><canvas id="cCategoria"></canvas></div>
+    </div>
+  </div>
+
+  <!-- RANKING ENCAMINHADORES -->
+  <p class="st">Ranking de Encaminhamentos</p>
+  <div class="cg wide">
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Quem mais encaminhou exames</div><div class="cs">Total de exames gerados por contato</div></div><span class="cb">Top 8</span></div>
+      <div class="rl" id="rankEnc"></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Exames por Tipo</div><div class="cs">Encaminhamentos gerados</div></div></div>
+      <div style="position:relative;height:260px"><canvas id="cExames"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ÚLTIMAS INTERAÇÕES -->
+  <p class="st">Últimas Interações</p>
+  <div class="cg full">
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Histórico recente de contatos</div></div><span class="cb">10 mais recentes</span></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Médico/Prefeitura</th><th>Falado com</th><th>Tipo</th><th>Data</th><th>Quem Realizou</th><th>Retorno</th><th>Próximo Passo</th></tr></thead>
+          <tbody id="tbInteracoes"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENCAMINHAMENTOS RECENTES -->
+  <p class="st">Encaminhamentos Recentes</p>
+  <div class="cg full">
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Últimos exames encaminhados</div></div><span class="cb">10 mais recentes</span></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Médico/Prefeitura</th><th>Paciente</th><th>Exame</th><th>Convênio</th><th>Data Encaminhamento</th><th>Data Realização</th><th>Status</th></tr></thead>
+          <tbody id="tbEnc"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── DADOS DE EXEMPLO ─────────────────────────────────────────
+const interacoes = [
+  {contato:"Dr. Carlos Mendes",     falado:"Sec. Ana",      tipo:"Médico",      tipoContato:"WhatsApp / mensagem", data:"10/07/2026", quem:"Liliam",   retorno:"Positivo (vai encaminhar)",  proximo:"Aguardar encaminhamentos"},
+  {contato:"Prefeitura São Gabriel",falado:"Coord. Saúde",  tipo:"Prefeitura",  tipoContato:"Visita presencial",   data:"09/07/2026", quem:"Paula",    retorno:"Em andamento (aguardando)",  proximo:"Reunião em 15/07"},
+  {contato:"Dra. Marina Souza",     falado:"Diretamente",   tipo:"Médico",      tipoContato:"Ligação telefônica",  data:"08/07/2026", quem:"Camila",   retorno:"Positivo (vai encaminhar)",  proximo:"Enviar material"},
+  {contato:"Clínica Bem Estar",     falado:"Recepção",      tipo:"Outros",      tipoContato:"E-mail",              data:"07/07/2026", quem:"Brenda",   retorno:"Neutro (sem compromisso)",   proximo:"Retornar em 30 dias"},
+  {contato:"Dr. André Lima",        falado:"Sec. Joana",    tipo:"Médico",      tipoContato:"WhatsApp / mensagem", data:"05/07/2026", quem:"Liliam",   retorno:"Negativo (sem interesse)",   proximo:"—"},
+  {contato:"Prefeitura Dilermando", falado:"Sec. Municipal", tipo:"Prefeitura", tipoContato:"Visita presencial",   data:"04/07/2026", quem:"Paula",    retorno:"Em andamento (aguardando)",  proximo:"Ligar na próxima semana"},
+  {contato:"Dr. Roberto Farias",    falado:"Diretamente",   tipo:"Médico",      tipoContato:"Ligação telefônica",  data:"03/07/2026", quem:"Caroline", retorno:"Positivo (vai encaminhar)",  proximo:"Aguardar encaminhamentos"},
+  {contato:"Dra. Fernanda Costa",   falado:"Sec. Paula",    tipo:"Médico",      tipoContato:"WhatsApp / mensagem", data:"02/07/2026", quem:"Juliane",  retorno:"Em andamento (aguardando)",  proximo:"Retornar em 10/07"},
+  {contato:"UBS Centro",            falado:"Enfermeira",    tipo:"Outros",      tipoContato:"Visita presencial",   data:"01/07/2026", quem:"Paula",    retorno:"Positivo (vai encaminhar)",  proximo:"Aguardar encaminhamentos"},
+  {contato:"Dr. Paulo Ritter",      falado:"Diretamente",   tipo:"Médico",      tipoContato:"Ligação telefônica",  data:"30/06/2026", quem:"Cristiele",retorno:"Neutro (sem compromisso)",   proximo:"Retornar em 30 dias"},
+];
+
+const encaminhamentos = [
+  {contato:"Dr. Carlos Mendes",   paciente:"João Silva",     exame:"Ecografia",     convenio:"Unimed",             dataEnc:"08/07/2026", dataReal:"10/07/2026", status:"Realizado"},
+  {contato:"Dr. Carlos Mendes",   paciente:"Maria Souza",    exame:"Tomografia",    convenio:"IPE Saúde",          dataEnc:"08/07/2026", dataReal:"",           status:"Agendado"},
+  {contato:"Dra. Marina Souza",   paciente:"Ana Lima",       exame:"Ressonância",   convenio:"Unimed",             dataEnc:"07/07/2026", dataReal:"09/07/2026", status:"Realizado"},
+  {contato:"UBS Centro",          paciente:"Pedro Costa",    exame:"Raio X",        convenio:"Tarifa Social",      dataEnc:"06/07/2026", dataReal:"07/07/2026", status:"Realizado"},
+  {contato:"Dr. Roberto Farias",  paciente:"Laura Martins",  exame:"Mamografia",    convenio:"CASSI",              dataEnc:"05/07/2026", dataReal:"",           status:"Agendado"},
+  {contato:"Dr. Carlos Mendes",   paciente:"Carlos Ramos",   exame:"Ecografia",     convenio:"Particular",         dataEnc:"04/07/2026", dataReal:"05/07/2026", status:"Realizado"},
+  {contato:"Dra. Marina Souza",   paciente:"Lucia Freitas",  exame:"Densitometria", convenio:"Unimed",             dataEnc:"03/07/2026", dataReal:"",           status:"Aguardando autorização"},
+  {contato:"UBS Centro",          paciente:"Marcos Alves",   exame:"Ecografia",     convenio:"Tarifa Social",      dataEnc:"02/07/2026", dataReal:"03/07/2026", status:"Realizado"},
+  {contato:"Dr. Roberto Farias",  paciente:"Sandra Nunes",   exame:"Tomografia",    convenio:"IPE Saúde",          dataEnc:"01/07/2026", dataReal:"",           status:"Remarcado"},
+  {contato:"Dr. Carlos Mendes",   paciente:"Rita Oliveira",  exame:"Ressonância",   convenio:"CAUZZO",             dataEnc:"30/06/2026", dataReal:"02/07/2026", status:"Realizado"},
+];
+
+const ranking = [
+  {nome:"Dr. Carlos Mendes",    tipo:"Médico",    total:12, cor:"#2E75B6"},
+  {nome:"Dra. Marina Souza",    tipo:"Médico",    total:9,  cor:"#16a34a"},
+  {nome:"UBS Centro",           tipo:"Outros",    total:8,  cor:"#d97706"},
+  {nome:"Dr. Roberto Farias",   tipo:"Médico",    total:7,  cor:"#7c3aed"},
+  {nome:"Prefeitura S. Gabriel",tipo:"Prefeitura",total:5,  cor:"#0891b2"},
+  {nome:"Dra. Fernanda Costa",  tipo:"Médico",    total:3,  cor:"#db2777"},
+  {nome:"Dr. Paulo Ritter",     tipo:"Médico",    total:2,  cor:"#65a30d"},
+  {nome:"UBS Norte",            tipo:"Outros",    total:1,  cor:"#ea580c"},
+];
+
+// ── RENDER ────────────────────────────────────────────────────
+function retornoBadge(r){
+  if(r.includes("Positivo"))  return `<span class="badge b-pos">✓ Positivo</span>`;
+  if(r.includes("Negativo"))  return `<span class="badge b-neg">✗ Negativo</span>`;
+  if(r.includes("andamento")) return `<span class="badge b-and">⏳ Andamento</span>`;
+  return `<span class="badge b-neu">→ Neutro</span>`;
+}
+function statusBadge(s){
+  if(s==="Realizado")              return `<span class="badge b-re">✓ Realizado</span>`;
+  if(s==="Cancelado")              return `<span class="badge b-ca">✗ Cancelado</span>`;
+  if(s==="Agendado")               return `<span class="badge b-ag">● Agendado</span>`;
+  if(s==="Remarcado")              return `<span class="badge b-rm">↻ Remarcado</span>`;
+  if(s==="Aguardando autorização") return `<span class="badge b-aw">⏳ Aguardando</span>`;
+  return s;
+}
+
+// Tabela interações
+document.getElementById("tbInteracoes").innerHTML = interacoes.map(i=>`
+  <tr>
+    <td><strong>${i.contato}</strong><br><span style="font-size:.68rem;color:var(--sf)">${i.tipo}</span></td>
+    <td>${i.falado}</td>
+    <td style="font-size:.75rem">${i.tipoContato}</td>
+    <td style="font-family:var(--fm);font-size:.76rem">${i.data}</td>
+    <td>${i.quem}</td>
+    <td>${retornoBadge(i.retorno)}</td>
+    <td style="font-size:.75rem;color:var(--sf)">${i.proximo}</td>
+  </tr>`).join("");
+
+// Tabela encaminhamentos
+document.getElementById("tbEnc").innerHTML = encaminhamentos.map(e=>`
+  <tr>
+    <td><strong>${e.contato}</strong></td>
+    <td>${e.paciente}</td>
+    <td>${e.exame}</td>
+    <td style="font-size:.75rem">${e.convenio}</td>
+    <td style="font-family:var(--fm);font-size:.76rem">${e.dataEnc}</td>
+    <td style="font-family:var(--fm);font-size:.76rem">${e.dataReal||'—'}</td>
+    <td>${statusBadge(e.status)}</td>
+  </tr>`).join("");
+
+// Ranking
+const maxR = ranking[0].total;
+document.getElementById("rankEnc").innerHTML = ranking.map((r,i)=>`
+  <div class="ri">
+    <div class="rn ${i===0?"g":i===1?"s":i===2?"b":""}">${i+1}</div>
+    <div style="flex:1"><div class="rname">${r.nome}</div><div class="rsub">${r.tipo}</div></div>
+    <div class="rbw">
+      <div class="rbb"><div class="rbf" style="width:${Math.round(r.total/maxR*100)}%;background:${r.cor}"></div></div>
+      <div class="rv" style="color:${r.cor}">${r.total}</div>
+    </div>
+  </div>`).join("");
+
+// Charts
+const lOpts = () => ({responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{position:"bottom",labels:{font:{family:"DM Sans",size:11},padding:10}}}});
+
+new Chart(document.getElementById("cRetorno"),{type:"doughnut",data:{
+  labels:["Positivo","Em andamento","Neutro","Negativo"],
+  datasets:[{data:[14,11,7,6],backgroundColor:["#16a34a","#d97706","#94a3b8","#dc2626"],borderWidth:2,borderColor:"#fff"}]
+},options:lOpts()});
+
+new Chart(document.getElementById("cTipo"),{type:"doughnut",data:{
+  labels:["WhatsApp","Visita presencial","Ligação","E-mail"],
+  datasets:[{data:[18,10,7,3],backgroundColor:["#2E75B6","#7c3aed","#16a34a","#d97706"],borderWidth:2,borderColor:"#fff"}]
+},options:lOpts()});
+
+new Chart(document.getElementById("cMes"),{type:"bar",data:{
+  labels:["Maio","Junho","Julho"],
+  datasets:[{label:"Interações",data:[8,15,22],backgroundColor:"#2E75B6CC",borderRadius:5}]
+},options:{...lOpts(),plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{family:"DM Sans",size:12}}},y:{grid:{color:"#EBF3FB"},ticks:{font:{family:"DM Mono",size:10}}}}}});
+
+new Chart(document.getElementById("cCategoria"),{type:"doughnut",data:{
+  labels:["Médicos","Prefeituras","Outros"],
+  datasets:[{data:[24,7,7],backgroundColor:["#2E75B6","#7c3aed","#d97706"],borderWidth:2,borderColor:"#fff"}]
+},options:lOpts()});
+
+new Chart(document.getElementById("cExames"),{type:"bar",data:{
+  labels:["Ecografia","Tomografia","Ressonância","Raio X","Mamografia","Densitometria"],
+  datasets:[{label:"Exames",data:[18,12,9,4,3,1],backgroundColor:["#2E75B6CC","#4EAEE0CC","#1F3864CC","#7CB9E8CC","#B0D4F1CC","#5E9BD1CC"],borderRadius:4}]
+},options:{...lOpts(),indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{grid:{color:"#EBF3FB"},ticks:{font:{family:"DM Mono",size:10}}},y:{grid:{display:false},ticks:{font:{family:"DM Sans",size:11}}}}}});
+</script>
+</body>
+</html>
