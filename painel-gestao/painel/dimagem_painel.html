@@ -396,9 +396,50 @@ function renderEvolucao(){
   },options:bOpts()});
 }
 
+// ── ATUALIZAÇÃO AUTOMÁTICA A PARTIR DA PLANILHA ──────────────
+// Cole aqui a URL do App da Web (termina em /exec). Veja o passo a passo.
+const API_URL = "https://script.google.com/macros/s/AKfycbwv6FbnUb1R42wsZNSQGFZFqmA7LprB56lP-p_0tkLl2I4AIlIEfVbbAhMAYDitaD_9/exec";
+
+function mesInicial(){
+  const c = MESES.filter(temDados);
+  return c.length ? c[c.length-1] : "Janeiro";
+}
+
+function mostrarStatus(txt, ok){
+  let el = document.getElementById("statusDados");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "statusDados";
+    el.style.cssText = "font-size:.72rem;margin:0 0 1rem;";
+    document.getElementById("abaMensal").prepend(el);
+  }
+  el.style.color = ok ? "#16a34a" : "#d97706";
+  el.textContent = txt;
+}
+
+async function carregarDaPlanilha(){
+  if(!API_URL){ return; }
+  try{
+    const r = await fetch(API_URL);
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const novo = await r.json();
+    if(!novo || !Object.keys(novo).length) throw new Error("resposta vazia");
+    Object.keys(novo).forEach(m => { DADOS[m] = novo[m]; });
+    evolucaoRenderizada = false;
+    document.getElementById("conteudoEvolucao").innerHTML = "";
+    mesSel = temDados(mesSel) ? mesSel : mesInicial();
+    iniciarMeses(); renderPainel(mesSel);
+    mostrarStatus("● Dados atualizados da planilha em " + new Date().toLocaleString("pt-BR"), true);
+  }catch(err){
+    mostrarStatus("⚠ Não foi possível atualizar da planilha — exibindo última versão salva.", false);
+  }
+}
+
 // INIT
+mesSel = mesInicial();
 iniciarMeses();
 renderPainel(mesSel);
+carregarDaPlanilha();
 </script>
 </body>
 </html>
